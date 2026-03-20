@@ -68,7 +68,7 @@ else:
     df_rev = pd.DataFrame(reventa_data)
     df_rev["Ganancia ($)"] = df_rev["Venta Detalle ($)"] - df_rev["Costo Mayor ($)"]
     df_rev["ROI %"] = (df_rev["Ganancia ($)"] / df_rev["Costo Mayor ($)"]) * 100
-    st.dataframe(df_rev.style.background_gradient(cmap='Greens', subset=['ROI %']), use_container_width=True)
+    st.dataframe(df_rev, use_container_width=True)
 
     # --- 5. TABLA DE INVERSIÓN + GANANCIA (SEMANAL/MENSUAL/ANUAL) ---
     st.markdown("---")
@@ -89,7 +89,10 @@ else:
     # --- 6. CHAT DE CONSULTORÍA & BOT 24/7 ---
     st.markdown("---")
     st.header("🤖 Consultoría IA & Chatbot Estratégico")
+    
+    # Inicializar historial de chat y el Bot una sola vez
     if "messages" not in st.session_state: st.session_state.messages = []
+    if "bot_ia" not in st.session_state: st.session_state.bot_ia = AnalizadorCompetencia()
     
     for m in st.session_state.messages:
         with st.chat_message(m["role"]): st.markdown(m["content"])
@@ -97,12 +100,21 @@ else:
     if p_chat := st.chat_input("Pregúntale a la IA sobre tu negocio..."):
         st.session_state.messages.append({"role": "user", "content": p_chat})
         with st.chat_message("user"): st.markdown(p_chat)
+        
         with st.chat_message("assistant"):
-            bot = AnalizadorCompetencia()
-            res = bot.comparar_precios(p_chat, "General")
-            st.markdown(res.content)
-            st.session_state.messages.append({"role": "assistant", "content": res.content})
-            guardar_analisis("Consulta General", inv_input, gan_s, res.content)
+            with st.spinner("Consultando con la red de Groq..."):
+                try:
+                    # Usamos el bot guardado en session_state
+                    res = st.session_state.bot_ia.comparar_precios(p_chat, "General")
+                    respuesta_texto = res.content
+                    st.markdown(respuesta_texto)
+                    
+                    # Guardar en historial y base de datos
+                    st.session_state.messages.append({"role": "assistant", "content": respuesta_texto})
+                    guardar_analisis("Consulta General", inv_input, gan_s, respuesta_texto)
+                except Exception as e:
+                    st.error(f"Error de conexión: {e}")
+                    st.info("Revisa que tu GROQ_API_KEY esté bien puesta en los Secrets.")
 
     # --- 7. TENDENCIA DE CAPITALIZACIÓN & HISTORIAL SQL ---
     st.markdown("---")
