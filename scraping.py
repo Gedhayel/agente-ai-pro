@@ -1,29 +1,27 @@
+import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 from langchain_core.prompts import PromptTemplate
-from langchain_groq import ChatGroq # Cambiamos esto
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
+from langchain_groq import ChatGroq
 
 class AnalizadorCompetencia:
     def __init__(self):
-        # Usamos Groq que es gratis y vuela
+        # Este es el "puente" que busca la clave en el panel de Secrets de Streamlit
         self.llm = ChatGroq(
-            temperature=0, 
+            temperature=0,
             model_name="llama-3.3-70b-versatile",
-            groq_api_key=os.getenv("GROQ_API_KEY") # Pon tu llave en el .env
+            
+    groq_api_key=st.secrets["GROQ_API_KEY"]
         )
 
     def comparar_precios(self, mis_productos, datos_competencia):
-        prompt_template = """
-        Eres un experto analista de precios.
-        MIS PRODUCTOS: {mis_productos}
-        COMPETENCIA: {datos_competencia}
-        
-        Crea una tabla comparativa y dime qué estrategia usar para ganarles.
+        template = """
+        Eres un experto analista de precios. 
+        Compara mis productos con los de la competencia:
+        Mis productos: {mis_productos}
+        Competencia: {datos_competencia}
+        Dame un análisis breve de dónde estoy caro o barato.
         """
-        prompt = PromptTemplate(input_variables=["mis_productos", "datos_competencia"], template=prompt_template)
+        prompt = PromptTemplate.from_template(template)
         cadena = prompt | self.llm
         return cadena.invoke({"mis_productos": mis_productos, "datos_competencia": datos_competencia})
