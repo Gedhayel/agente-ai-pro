@@ -6,12 +6,11 @@ from langchain_groq import ChatGroq
 
 class AnalizadorCompetencia:
     def __init__(self):
-        # Este es el "puente" que busca la clave en el panel de Secrets de Streamlit
+        # Conexión con los Secrets de Streamlit
         self.llm = ChatGroq(
             temperature=0,
             model_name="llama-3.3-70b-versatile",
-            
-    groq_api_key=st.secrets["GROQ_API_KEY"]
+            groq_api_key=st.secrets["GROQ_API_KEY"]
         )
 
     def comparar_precios(self, mis_productos, datos_competencia):
