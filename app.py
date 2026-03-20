@@ -68,7 +68,7 @@ else:
     df_rev = pd.DataFrame(reventa_data)
     df_rev["Ganancia ($)"] = df_rev["Venta Detalle ($)"] - df_rev["Costo Mayor ($)"]
     df_rev["ROI %"] = (df_rev["Ganancia ($)"] / df_rev["Costo Mayor ($)"]) * 100
-    st.dataframe(df_rev, use_container_width=True)
+    st.dataframe(df_rev.style.background_gradient(cmap='Greens', subset=['ROI %']), use_container_width=True)
 
     # --- 5. TABLA DE INVERSIÓN + GANANCIA (SEMANAL/MENSUAL/ANUAL) ---
     st.markdown("---")
