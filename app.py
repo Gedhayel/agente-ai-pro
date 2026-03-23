@@ -127,5 +127,4 @@ else:
     st.markdown("---")
     st.header("📦 Radar de Productos (Reventa & Márgenes)")
     reventa_data = {
-        "Producto": ["Audífonos Pro", "Teclado RGB", "Cámara 4K", "Monitor 144Hz"],
-        "
+        "Producto": ["Audífonos Pro", "Teclado RGB", "Cámara 4K", "Monitor 144Hz"]
