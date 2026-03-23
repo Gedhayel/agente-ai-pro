@@ -100,7 +100,7 @@ else:
                 st.success("Verificado ✅")
 
         st.markdown("---")
-        whatsapp_url = "https://wa.me/584120000000" # TU NÚMERO AQUÍ
+        whatsapp_url = "https://wa.me/584142486557" # TU NÚMERO AQUÍ
         whatsapp_icon = "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
         st.markdown(f'<a href="{whatsapp_url}" target="_blank" class="whatsapp-button"><img src="{whatsapp_icon}" class="whatsapp-icon">SOPORTE WHATSAPP</a>', unsafe_allow_html=True)
         
