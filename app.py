@@ -126,5 +126,72 @@ else:
     # --- 4. LISTADO DE PRODUCTOS PARA REVENTA ---
     st.markdown("---")
     st.header("📦 Radar de Productos (Reventa & Márgenes)")
+    
     reventa_data = {
-        "Producto": ["Audífonos Pro", "Teclado RGB", "Cámara 4K", "Monitor 144Hz"]
+        "Producto": ["Audífonos Pro", "Teclado RGB", "Cámara 4K", "Monitor 144Hz"],
+        "Costo Mayor ($)": [15, 25, 45, 120],
+        "Venta Detalle ($)": [45, 65, 110, 220]
+    }
+    
+    df_rev = pd.DataFrame(reventa_data)
+    df_rev["Ganancia ($)"] = df_rev["Venta Detalle ($)"] - df_rev["Costo Mayor ($)"]
+    df_rev["ROI %"] = (df_rev["Ganancia ($)"] / df_rev["Costo Mayor ($)"]) * 100
+    
+    st.dataframe(df_rev, use_container_width=True)
+
+    # --- 5. PROYECCIÓN DE CAPITALIZACIÓN ---
+    st.markdown("---")
+    st.header("📈 Proyección de Crecimiento")
+    col_t1, col_t2 = st.columns(2)
+    inv_input = col_t1.number_input("Inversión Inicial ($):", value=1000.0)
+    porcentaje = col_t2.slider("Margen Objetivo (%):", 5, 100, 25)
+    gan_s = inv_input * (porcentaje / 100)
+    
+    # --- 6. CONSULTORÍA IA & HISTORIAL ---
+    st.markdown("---")
+    st.header(f"🤖 Consultoría IA para {nombre_empresa}")
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    
+    for m in st.session_state.messages:
+        with st.chat_message(m["role"]):
+            st.markdown(m["content"])
+
+    if p_chat := st.chat_input("Pregúntale a la IA sobre tu negocio..."):
+        st.session_state.messages.append({"role": "user", "content": p_chat})
+        with st.chat_message("user"):
+            st.markdown(p_chat)
+        
+        with st.chat_message("assistant"):
+            bot_ia = AnalizadorCompetencia()
+            res = bot_ia.comparar_precios(p_chat, url_in if url_in else "Mercado", nombre_empresa)
+            st.session_state['analisis_actual'] = res.content
+            st.markdown(res.content)
+            st.session_state.messages.append({"role": "assistant", "content": res.content})
+            guardar_analisis(nombre_empresa, inv_input, gan_s, res.content)
+
+    # --- 7. TENDENCIAS E HISTORIAL SQL ---
+    st.markdown("---")
+    col_g, col_h = st.columns([2, 1])
+    
+    with col_g:
+        st.subheader("Tendencia Estimada")
+        proyeccion = [inv_input + (gan_s * i) for i in range(13)]
+        fig = px.area(y=proyeccion, x=list(range(13)), template="plotly_dark")
+        fig.update_traces(line_color='#00c853', fillcolor='rgba(0, 200, 83, 0.3)')
+        st.plotly_chart(fig, use_container_width=True)
+        
+    with col_h:
+        st.subheader("📜 Últimos Análisis")
+        h_data = obtener_historial()
+        if h_data:
+            for r in h_data[-3:]:
+                with st.expander(f"📅 {r[1]}"):
+                    st.write(r[5])
+        else:
+            st.write("No hay registros previos.")
+
+    # Botón de descarga al final
+    st.markdown(descargar_excel(df_rev), unsafe_allow_html=True)
+    
