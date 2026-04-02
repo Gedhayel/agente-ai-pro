@@ -58,7 +58,7 @@ if not st.session_state.auth:
     st.title("🔐 Acceso al Monitor BI")
     u, p = st.text_input("Usuario"), st.text_input("Contraseña", type="password")
     if st.button("INGRESAR AL TERMINAL", use_container_width=True):
-        if u.lower() == "admin" and p == "1234":
+        if u.lower() == "admin" and p == "123":
             st.session_state.auth = True
             st.rerun()
         else: st.error("Credenciales incorrectas")
